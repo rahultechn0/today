@@ -279,114 +279,215 @@ class DashboardController extends Controller
         return view('users',compact('packages'));
     }
 
-    public function matchingIncome() {
+    // public function matchingIncome() {
 
-        $userRecords     = User::select()->where("id",">",1)->where("packageAmt",">",0)->get();
-        foreach( $userRecords as $key=>$user){
+    //     $userRecords     = User::select()->where("id",">",1)->where("packageAmt",">",0)->get();
+    //     foreach( $userRecords as $key=>$user){
 
-        $id			  = $user['id'];
-        $num_left       = 0;
-        $num_right      = 0;
-        $left_business  = 0;
-        $right_business = 0;
-        $matching = 0;
-        $reward = 0;
+    //     $id			  = $user['id'];
+    //     $num_left       = 0;
+    //     $num_right      = 0;
+    //     $left_business  = 0;
+    //     $right_business = 0;
+    //     $matching = 0;
+    //     $reward = 0;
 
-        $leftCount     = User::where("levelParent",$id)->where("position",1)->count();
-        $rightCount    = User::where("levelParent",$id)->where("position",2)->count();
+    //     $leftCount     = User::where("levelParent",$id)->where("position",1)->count();
+    //     $rightCount    = User::where("levelParent",$id)->where("position",2)->count();
 
-        if( $leftCount >=1 && $rightCount>=1 ){
-            //------------- left downline
-            $ld       = User::where("levelParent",$id)->where("position",1)->first();
+    //     if( $leftCount >=1 && $rightCount>=1 ){
+    //         //------------- left downline
+    //         $ld       = User::where("levelParent",$id)->where("position",1)->first();
 
-            if( $ld ) {
-                $parent_left_str	=	$ld['level_str'];
-                $num_left	        =	User::where("level_str","like",$parent_left_str."%")->count();
+    //         if( $ld ) {
+    //             $parent_left_str	=	$ld['level_str'];
+    //             $num_left	        =	User::where("level_str","like",$parent_left_str."%")->count();
 
 
-                $left_business    = Transaction::where("trans",0)->whereIn('user_id', function($query) use ($parent_left_str)
-                                    {
-                                        $query->select("id")
-                                            ->from('users')
-                                            ->where("level_str","like",$parent_left_str."%");
-                                    })->sum("amount");
-                                  dump("Left",$left_business);
+    //             $left_business    = Transaction::where("trans",0)->whereIn('user_id', function($query) use ($parent_left_str)
+    //                                 {
+    //                                     $query->select("id")
+    //                                         ->from('users')
+    //                                         ->where("level_str","like",$parent_left_str."%");
+    //                                 })->sum("amount");
+    //                               dump("Left",$left_business);
 
-            }
-            //------------- Right downline
-            $rd       = User::where("levelParent",$id)->where("position",2)->first();
-            if( $rd ) {
-                $parent_right_str	=	$rd['level_str'];
-                $num_right        =	User::where("level_str","like",$parent_right_str."%")->count();
-                $right_business   = Transaction::where("trans",0)->whereIn('user_id', function($query) use ($parent_right_str)
-                                    {
-                                        $query->select("id")
-                                            ->from('users')
-                                            ->where("level_str","like",$parent_right_str."%");
-                                    })->sum("amount");
-                                    dump("Right",$right_business);
-            }
+    //         }
+    //         //------------- Right downline
+    //         $rd       = User::where("levelParent",$id)->where("position",2)->first();
+    //         if( $rd ) {
+    //             $parent_right_str	=	$rd['level_str'];
+    //             $num_right        =	User::where("level_str","like",$parent_right_str."%")->count();
+    //             $right_business   = Transaction::where("trans",0)->whereIn('user_id', function($query) use ($parent_right_str)
+    //                                 {
+    //                                     $query->select("id")
+    //                                         ->from('users')
+    //                                         ->where("level_str","like",$parent_right_str."%");
+    //                                 })->sum("amount");
+    //                                 dump("Right",$right_business);
+    //         }
 
-            //check Matching
+    //         //check Matching
 
-            $count =0;
-            $checkRank = Transaction::where('user_id',$id)->where('rank',10)->count();
+    //         $count =0;
+    //         $checkRank = Transaction::where('user_id',$id)->where('rank',10)->count();
 
-                if(($left_business >=5000 && $left_business < 15000) && ($right_business >=5000 && $right_business < 15000)){
-                $matching = 5000;
-                $rewardAmt = 100;
-                $rank = 10;
-                $count =1;
-            }
-            elseif (($left_business >=15000 && $left_business < 65000) && ($right_business >=15000 && $right_business < 65000)) {
-                if ($checkRank != 0) {
-                $matching = 15000;
-                $rewardAmt = 200;
-                $rank = 9;
-                $count =2;
-                }else{
-                $matching = 15000;
-                $rewardAmt = 200;
-                $rank = 9;
-                // $count =1;
+    //             if(($left_business >=5000 && $left_business < 15000) && ($right_business >=5000 && $right_business < 15000)){
+    //             $matching = 5000;
+    //             $rewardAmt = 100;
+    //             $rank = 10;
+    //             $count =1;
+    //         }
+    //         elseif (($left_business >=15000 && $left_business < 65000) && ($right_business >=15000 && $right_business < 65000)) {
+    //             if ($checkRank != 0) {
+    //             $matching = 15000;
+    //             $rewardAmt = 200;
+    //             $rank = 9;
+    //             $count =2;
+    //             }else{
+    //             $matching = 15000;
+    //             $rewardAmt = 200;
+    //             $rank = 9;
+    //             // $count =1;
+    //             }
+
+    //         }elseif (($left_business >=650000 && $left_business < 165000) && ($right_business >=50000 && $right_business < 100000)) {
+
+    //             if ($checkRank != 0) {
+    //                 $matching = 50000;
+    //             $rewardAmt = 800;
+    //             $rank = 8;
+    //             $count =3;
+    //                 }else{
+    //                 $matching = 50000;
+    //                 $rewardAmt = 800;
+    //                 $rank = 8;
+    //                 // $count =1;
+    //                 }
+
+    //         }// elseif (($left_business >=100000 && $left_business < 200000) && ($right_business >=100000 && $right_business < 200000)) {
+    //         //     $matching = 100000;
+    //         //     $reward = 1000;
+    //         // }
+
+
+    //         }
+
+    //         $matchAmt = Rank::orderBy('id','DESC')->get();
+
+    //         if ($count >=1) {
+    //             for ($i=0; $i < $count; $i++) {
+    //                 $rankData = $matchAmt[$i];
+    //                 $rank = $rankData['id'];
+    //                 $reward = $rankData['reward'];
+    //              Transaction::create( ["rank"=>$rank ,"trans"=>5,"type"=>"Matching Rewards", "user_id"=>$id,"amount"=>$reward]);
+    //             }
+    //         }else{
+    //             Transaction::create( ["rank"=>$rank ,"trans"=>5,"type"=>"Matching Rewards", "user_id"=>$id,"amount"=>$reward]);
+    //         }
+    //     }
+
+    // }
+
+
+
+    public function matchingIncome()
+    {
+
+        $userRecords     = User::select()->where("id", ">", 1)->where("packageAmt", ">", 0)->get();
+
+        foreach ($userRecords as $key => $user) {
+
+            $id              = $user['id'];
+            $num_left       = 0;
+            $num_right      = 0;
+            $left_business  = 0;
+            $right_business = 0;
+            $matching = 0;
+
+            $leftCount     = User::where("levelParent", $id)->where("position", 1)->count();
+            $rightCount    = User::where("levelParent", $id)->where("position", 2)->count();
+
+            if ($leftCount >= 1 && $rightCount >= 1) {
+                //------------- left downline
+                $ld       = User::where("levelParent", $id)->where("position", 1)->first();
+
+                if ($ld) {
+                    $parent_left_str    =    $ld['level_str'];
+
+                    $num_left            =    User::where("level_str", "like", $parent_left_str . "%")->count();
+
+
+                    $left_business    = Transaction::where("trans", 0)->whereIn('user_id', function ($query) use ($parent_left_str) {
+                        $query->select("id")
+                            ->from('users')
+                            ->where("level_str", "like", $parent_left_str . "%");
+                    })->sum("amount");
+
+                }
+                //------------- Right downline
+                $rd       = User::where("levelParent", $id)->where("position", 2)->first();
+                if ($rd) {
+                    $parent_right_str    =    $rd['level_str'];
+                    $num_right        =    User::where("level_str", "like", $parent_right_str . "%")->count();
+                    // dd($num_right);
+                    $right_business   = Transaction::where("trans", 0)->whereIn('user_id', function ($query) use ($parent_right_str) {
+                        $query->select("id")
+                            ->from('users')
+                            ->where("level_str", "like", $parent_right_str . "%");
+                    })->sum("amount");
                 }
 
-            }elseif (($left_business >=650000 && $left_business < 165000) && ($right_business >=50000 && $right_business < 100000)) {
+                //check Matching
+                if (($left_business >= 5000 && $left_business < 15000) && ($right_business >= 5000 && $right_business < 15000)) {
+                    $matching = 5000;
 
-                if ($checkRank != 0) {
-                    $matching = 50000;
-                $rewardAmt = 800;
-                $rank = 8;
-                $count =3;
+                } elseif (($left_business >= 15000 && $left_business < 65000) && ($right_business >= 15000 && $right_business < 65000)) {
+                    $matching = 15000;
+
+                } elseif (($left_business >= 650000 && $left_business < 165000) && ($right_business >= 50000 && $right_business < 165000)) {
+                    $matching = 65000;
+                }
+                elseif (($left_business >=165000 && $left_business < 365000) && ($right_business >=165000 && $right_business < 365000)) {
+                    $matching = 165000;
+                }
+                elseif (($left_business >=365000 && $left_business < 765000) && ($right_business >=365000 && $right_business < 765000)) {
+                    $matching = 365000;
+                }
+                elseif (($left_business >=765000 && $left_business < 1265000) && ($right_business >=765000 && $right_business < 1265000)) {
+                    $matching = 765000;
+                }
+                elseif (($left_business >=1265000 && $left_business < 1965000) && ($right_business >=1265000 && $right_business < 1965000)) {
+                    $matching = 1265000;
+                }
+                elseif (($left_business >=1965000 && $left_business < 2765000) && ($right_business >=1965000 && $right_business < 2765000)) {
+                    $matching = 1965000;
+                }
+                elseif (($left_business >=2765000 && $left_business < 3765000) && ($right_business >=2765000 && $right_business < 3765000)) {
+                    $matching = 2765000;
+                }
+                elseif (($left_business >=3765000 ) && ($right_business >=3765000)) {
+                    $matching = 3765000;
+                }
+
+                $matchRow = Rank::where('amount',$matching)->first();
+                if (isset($matchRow)) {
+                    $child_user_rank = $matchRow['child_rank'];
+                    if($child_user_rank>0){
+
+                        $child_user_rank = Rank::Matching_child_rank($child_user_rank,$parent_left_str,$parent_right_str);
+
+                        $updateRank =  $matchRow['reward'];
+                        Transaction::create(["rank" => $matchRow->id, "trans" => 5, "type" => "Matching Rewards", "user_id" => $id, "amount" => $updateRank]);
+                        User::where('id',$id)->update(["ranks" => $matchRow->id]);
                     }else{
-                    $matching = 50000;
-                    $rewardAmt = 800;
-                    $rank = 8;
-                    // $count =1;
+                        $updateRank =  $matchRow['reward'];
+                        Transaction::create(["rank" => 10, "trans" => 5, "type" => "Matching Rewards", "user_id" => $id, "amount" => $updateRank]);
+                        User::where('id',$id)->update(["ranks" => 10]);
                     }
-
-            }// elseif (($left_business >=100000 && $left_business < 200000) && ($right_business >=100000 && $right_business < 200000)) {
-            //     $matching = 100000;
-            //     $reward = 1000;
-            // }
-
-
-            }
-
-            $matchAmt = Rank::orderBy('id','DESC')->get();
-
-            if ($count >=1) {
-                for ($i=0; $i < $count; $i++) {
-                    $rankData = $matchAmt[$i];
-                    $rank = $rankData['id'];
-                    $reward = $rankData['reward'];
-                 Transaction::create( ["rank"=>$rank ,"trans"=>5,"type"=>"Matching Rewards", "user_id"=>$id,"amount"=>$reward]);
                 }
-            }else{
-                Transaction::create( ["rank"=>$rank ,"trans"=>5,"type"=>"Matching Rewards", "user_id"=>$id,"amount"=>$reward]);
             }
         }
-
     }
 
     public function unstack(Request $request)
